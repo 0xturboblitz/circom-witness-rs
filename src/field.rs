@@ -223,3 +223,47 @@ pub unsafe fn Fr_shr(to: *mut FrElement, a: *const FrElement, b: *const FrElemen
 pub unsafe fn Fr_band(to: *mut FrElement, a: *const FrElement, b: *const FrElement) {
     binop(Operation::Band, to, a, b);
 }
+
+pub unsafe fn Fr_pow(to: *mut FrElement, a: *const FrElement, b: *const FrElement) {
+    binop(Operation::Pow, to, a, b);
+}
+
+pub unsafe fn Fr_neg(to: *mut FrElement, a: *const FrElement) {
+    let mut nodes = NODES.lock().unwrap();
+    let mut values = VALUES.lock().unwrap();
+    let mut constant = CONSTANT.lock().unwrap();
+    assert_eq!(nodes.len(), values.len());
+    assert_eq!(nodes.len(), constant.len());
+
+    let a = (*a).0;
+    assert!(a < nodes.len());
+    let value_a = values[a];
+    let constant_a = constant[a];
+    nodes.push(Node::Neg(a));
+    let idx = nodes.len() - 1;
+    *to = FrElement(idx);
+
+    values.push(-value_a);
+    constant.push(constant_a);
+}
+
+// pub unsafe fn Fr_neg(to: *mut FrElement, a: *const FrElement) {
+//     let mut nodes = NODES.lock().unwrap();
+//     let mut values = VALUES.lock().unwrap();
+//     let mut constant = CONSTANT.lock().unwrap();
+//     assert_eq!(nodes.len(), values.len());
+//     assert_eq!(nodes.len(), constant.len());
+
+//     let a_index = (*a).0;
+//     assert!(a_index < nodes.len());
+
+//     let negated_value = M - values[a_index];
+
+//     nodes.push(Node::Neg(a_index));
+//     let to_index = nodes.len() - 1;
+
+//     values.push(negated_value);
+//     constant.push(constant[a_index]);
+
+//     *to = FrElement(to_index);
+// }

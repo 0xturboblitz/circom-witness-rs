@@ -10,11 +10,12 @@ fn main() {
             .args([
                 fs::canonicalize(circuit_file).unwrap().to_str().unwrap(),
                 "--c",
+                "-l",
+                "circuits/node_modules",
             ])
             .status()
             .unwrap();
         assert!(status.success());
-
         let cpp = Path::new("./")
             .join(circuit_name.to_owned() + "_cpp")
             .join(circuit_name.to_owned() + ".cpp");

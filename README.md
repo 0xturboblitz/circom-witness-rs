@@ -1,3 +1,9 @@
+Command that works currently:
+```
+WITNESS_CPP="$(pwd)"/circuits/src/proof_of_passport.circom cargo build --release --features build-witness
+```
+Running that from `semaphore-witness-example` doesn't work currently cuz need to add `-l` flag to include `node_modules` paths just like I did here.
+
 # 🏎️ circom-witness-rs
 
 ## Description

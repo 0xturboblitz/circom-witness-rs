@@ -47,6 +47,8 @@ pub enum Operation {
     Shl,
     Shr,
     Band,
+    Pow,
+    Neg
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -56,6 +58,7 @@ pub enum Node {
     #[serde(serialize_with = "ark_se", deserialize_with = "ark_de")]
     MontConstant(Fr),
     Op(Operation, usize, usize),
+    Neg(usize),
 }
 
 impl Operation {
@@ -75,6 +78,7 @@ impl Operation {
             Shl => compute_shl_uint(a, b),
             Shr => compute_shr_uint(a, b),
             Band => a.bitand(b),
+            Pow => a.pow_mod(b, M),
             _ => unimplemented!("operator {:?} not implemented", self),
         }
     }
@@ -132,6 +136,7 @@ pub fn evaluate(nodes: &[Node], inputs: &[U256], outputs: &[usize]) -> Vec<U256>
             Node::MontConstant(c) => c,
             Node::Input(i) => Fr::new(inputs[i].into()),
             Node::Op(op, a, b) => op.eval_fr(values[a], values[b]),
+            Node::Neg(a) => -values[a],
         };
         values.push(value);
     }
@@ -251,6 +256,7 @@ fn random_eval(nodes: &mut Vec<Node>) -> Vec<U256> {
             Node::Op(op, a, b) => *prfs
                 .entry((*op, values[*a], values[*b]))
                 .or_insert_with(|| rng.gen::<U256>() % M),
+            Node::Neg(a) => -values[*a],
         };
         values.push(value);
     }
@@ -322,6 +328,7 @@ pub fn montgomery_form(nodes: &mut [Node]) {
             MontConstant(..) => (),
             Input(..) => (),
             Op(Add | Sub | Mul, ..) => (),
+            Node::Neg(..) => (),
             Op(..) => unimplemented!("Operators Montgomery form"),
         }
     }

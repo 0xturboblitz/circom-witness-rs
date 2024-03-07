@@ -64,7 +64,7 @@ mod ffi {
         unsafe fn Fr_sub(to: *mut FrElement, a: *const FrElement, b: *const FrElement);
         unsafe fn Fr_copy(to: *mut FrElement, a: *const FrElement);
         unsafe fn Fr_copyn(to: *mut FrElement, a: *const FrElement, n: usize);
-        // unsafe fn Fr_neg(to: *mut FrElement, a: *const FrElement);
+        unsafe fn Fr_neg(to: *mut FrElement, a: *const FrElement);
         // unsafe fn Fr_inv(to: *mut FrElement, a: *const FrElement);
         // unsafe fn Fr_div(to: *mut FrElement, a: *const FrElement, b: *const FrElement);
         // unsafe fn Fr_square(to: *mut FrElement, a: *const FrElement);
@@ -85,7 +85,7 @@ mod ffi {
         unsafe fn Fr_toInt(a: *mut FrElement) -> u64;
         unsafe fn Fr_lor(to: *mut FrElement, a: *const FrElement, b: *const FrElement);
         unsafe fn print(a: *mut FrElement);
-        // fn Fr_pow(to: &mut FrElement, a: &FrElement, b: &FrElement);
+        unsafe fn Fr_pow(to: *mut FrElement, a: *const FrElement, b: *const FrElement);
         // fn Fr_idiv(to: &mut FrElement, a: &FrElement, b: &FrElement);
     }
 
