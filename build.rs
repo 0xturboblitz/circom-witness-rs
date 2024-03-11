@@ -3,6 +3,7 @@ use std::{env, fs, path::Path, process::Command};
 fn main() {
     if cfg!(feature = "build-witness") {
         let witness_cpp = env::var("WITNESS_CPP").unwrap();
+        println!("cargo:warning=\"witness_cpp, {}\"", witness_cpp);
         let circuit_file = Path::new(&witness_cpp);
         let circuit_name = circuit_file.file_stem().unwrap().to_str().unwrap();
 
@@ -10,6 +11,7 @@ fn main() {
             .args([
                 fs::canonicalize(circuit_file).unwrap().to_str().unwrap(),
                 "--c",
+                "--wasm",
                 "-l",
                 "circuits/node_modules",
             ])

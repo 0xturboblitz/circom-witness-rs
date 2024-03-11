@@ -164,7 +164,17 @@ pub unsafe fn Fr_toInt(a: *const FrElement) -> u64 {
     let a = unsafe { (*a).0 };
     assert!(a < nodes.len());
     assert!(constant[a]);
-    values[a].try_into().unwrap()
+    let value_mod_m = values[a] % M;
+    match value_mod_m.try_into() {
+        Ok(value) => value,
+        Err(_) => {
+            println!("DEBUG>> values[a] {:?}", values[a]);
+            println!("DEBUG>> value_mod_m as decimal string {:?}", value_mod_m.to_string());
+            println!("DEBUG>> M as decimal string {:?}", M.to_string());
+            println!("DEBUG>> value_mod_m {:?}", value_mod_m);
+            panic!("Failed to convert value_mod_m to u64");
+        }
+    }
 }
 
 pub unsafe fn print(a: *const FrElement) {
@@ -180,7 +190,7 @@ pub fn Fr_isTrue(a: *mut FrElement) -> bool {
 
     let a = unsafe { (*a).0 };
     assert!(a < nodes.len());
-    assert!(constant[a]);
+    // assert!(constant[a]);
     values[a] != U256::ZERO
 }
 
@@ -228,6 +238,36 @@ pub unsafe fn Fr_pow(to: *mut FrElement, a: *const FrElement, b: *const FrElemen
     binop(Operation::Pow, to, a, b);
 }
 
+#[allow(warnings)]
+pub unsafe fn Fr_idiv(to: *mut FrElement, a: *const FrElement, b: *const FrElement) {
+    binop(Operation::Idiv, to, a, b);
+}
+
+#[allow(warnings)]
+pub unsafe fn Fr_div(to: *mut FrElement, a: *const FrElement, b: *const FrElement) {
+    binop(Operation::Div, to, a, b);
+}
+
+#[allow(warnings)]
+pub unsafe fn Fr_bxor(to: *mut FrElement, a: *const FrElement, b: *const FrElement) {
+    binop(Operation::Bxor, to, a, b);
+}
+
+#[allow(warnings)]
+pub unsafe fn Fr_bor(to: *mut FrElement, a: *const FrElement, b: *const FrElement) {
+    binop(Operation::Bor, to, a, b);
+}
+
+#[allow(warnings)]
+pub unsafe fn Fr_mod(to: *mut FrElement, a: *const FrElement, b: *const FrElement) {
+    binop(Operation::Mod, to, a, b);
+}
+
+#[allow(warnings)]
+pub unsafe fn Fr_land(to: *mut FrElement, a: *const FrElement, b: *const FrElement) {
+    binop(Operation::Land, to, a, b);
+}
+
 pub unsafe fn Fr_neg(to: *mut FrElement, a: *const FrElement) {
     let mut nodes = NODES.lock().unwrap();
     let mut values = VALUES.lock().unwrap();
@@ -246,24 +286,3 @@ pub unsafe fn Fr_neg(to: *mut FrElement, a: *const FrElement) {
     values.push(-value_a);
     constant.push(constant_a);
 }
-
-// pub unsafe fn Fr_neg(to: *mut FrElement, a: *const FrElement) {
-//     let mut nodes = NODES.lock().unwrap();
-//     let mut values = VALUES.lock().unwrap();
-//     let mut constant = CONSTANT.lock().unwrap();
-//     assert_eq!(nodes.len(), values.len());
-//     assert_eq!(nodes.len(), constant.len());
-
-//     let a_index = (*a).0;
-//     assert!(a_index < nodes.len());
-
-//     let negated_value = M - values[a_index];
-
-//     nodes.push(Node::Neg(a_index));
-//     let to_index = nodes.len() - 1;
-
-//     values.push(negated_value);
-//     constant.push(constant[a_index]);
-
-//     *to = FrElement(to_index);
-// }

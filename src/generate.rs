@@ -66,14 +66,14 @@ mod ffi {
         unsafe fn Fr_copyn(to: *mut FrElement, a: *const FrElement, n: usize);
         unsafe fn Fr_neg(to: *mut FrElement, a: *const FrElement);
         // unsafe fn Fr_inv(to: *mut FrElement, a: *const FrElement);
-        // unsafe fn Fr_div(to: *mut FrElement, a: *const FrElement, b: *const FrElement);
+        unsafe fn Fr_div(to: *mut FrElement, a: *const FrElement, b: *const FrElement);
         // unsafe fn Fr_square(to: *mut FrElement, a: *const FrElement);
         unsafe fn Fr_shl(to: *mut FrElement, a: *const FrElement, b: *const FrElement);
         unsafe fn Fr_shr(to: *mut FrElement, a: *const FrElement, b: *const FrElement);
         unsafe fn Fr_band(to: *mut FrElement, a: *const FrElement, b: *const FrElement);
-        // fn Fr_bor(to: &mut FrElement, a: &FrElement, b: &FrElement);
-        // fn Fr_bxor(to: &mut FrElement, a: &FrElement, b: &FrElement);
-        // fn Fr_bnot(to: &mut FrElement, a: &FrElement);
+        unsafe fn Fr_bor(to: *mut FrElement, a: *const FrElement, b: *const FrElement);
+        unsafe fn Fr_bxor(to: *mut FrElement, a: *const FrElement, b: *const FrElement);
+        // unsafe fn Fr_bnot(to: *mut FrElement, a: *const FrElement);
         unsafe fn Fr_eq(to: *mut FrElement, a: *const FrElement, b: *const FrElement);
         unsafe fn Fr_neq(to: *mut FrElement, a: *const FrElement, b: *const FrElement);
         unsafe fn Fr_lt(to: *mut FrElement, a: *const FrElement, b: *const FrElement);
@@ -86,7 +86,9 @@ mod ffi {
         unsafe fn Fr_lor(to: *mut FrElement, a: *const FrElement, b: *const FrElement);
         unsafe fn print(a: *mut FrElement);
         unsafe fn Fr_pow(to: *mut FrElement, a: *const FrElement, b: *const FrElement);
-        // fn Fr_idiv(to: &mut FrElement, a: &FrElement, b: &FrElement);
+        unsafe fn Fr_idiv(to: *mut FrElement, a: *const FrElement, b: *const FrElement);
+        unsafe fn Fr_mod(to: *mut FrElement, a: *const FrElement, b: *const FrElement);
+        unsafe fn Fr_land(to: *mut FrElement, a: *const FrElement, b: *const FrElement);
     }
 
     // C++ types and signatures exposed to Rust.
@@ -209,13 +211,13 @@ pub fn get_iosignals() -> Vec<InputOutputList> {
 /// Run cpp witness generator and optimize graph
 pub fn build_witness() -> eyre::Result<()> {
     let mut signal_values = vec![field::undefined(); ffi::get_total_signal_no() as usize];
-    signal_values[0] = field::constant(uint!(1_U256));
+    // signal_values[0] = field::constant(uint!(1_U256));
 
     let total_input_len =
         (ffi::get_main_input_signal_no() + ffi::get_main_input_signal_start()) as usize;
 
     for i in 0..total_input_len {
-        signal_values[i + 1] = field::input(i + 1, uint!(0_U256));
+        signal_values[i] = field::input(i, uint!(0_U256));
     }
 
     let mut ctx = ffi::Circom_CalcWit {

@@ -6,3 +6,6 @@ circuit.cc
 constants.dat
 .idea
 circuits/node_modules
+multiplier_js
+proof_of_passport_js
+semaphore_js

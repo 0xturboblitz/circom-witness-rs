@@ -48,7 +48,31 @@ pub enum Operation {
     Shr,
     Band,
     Pow,
-    Neg
+    Neg,
+    Idiv,
+    Div,
+    Bxor,
+    Bor,
+    Mod,
+    Land,
+}
+
+fn extended_gcd(a: U256, b: U256) -> (U256, U256, U256) {
+    if b == U256::ZERO {
+        (a, U256::from(1), U256::ZERO)
+    } else {
+        let (gcd, x, y) = extended_gcd(b, a % b);
+        (gcd, y, x - (a / b) * y)
+    }
+}
+
+fn mod_inv(a: U256, m: U256) -> Option<U256> {
+    let (gcd, x, _) = extended_gcd(a, m);
+    if gcd == U256::from(1) {
+        Some((x + m) % m)
+    } else {
+        None
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -79,6 +103,21 @@ impl Operation {
             Shr => compute_shr_uint(a, b),
             Band => a.bitand(b),
             Pow => a.pow_mod(b, M),
+            Idiv => U256::from(a.add_mod(U256::ZERO, M) / b.add_mod(U256::ZERO, M)),
+            Bxor => U256::from(a ^ b),
+            Bor => U256::from(a | b),
+            Mod => U256::from(a % b),
+            Land => U256::from(a != U256::ZERO && b != U256::ZERO),
+            Div => {
+                let a = U256::from(a);
+                let b = U256::from(b);
+                let m = U256::from(M);
+        
+                match mod_inv(b, m) {
+                    Some(inv) => U256::mul_mod(a, inv, m).into(),
+                    None => panic!("Modular multiplicative inverse does not exist"),
+                }
+            }
             _ => unimplemented!("operator {:?} not implemented", self),
         }
     }
